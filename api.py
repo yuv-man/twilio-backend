@@ -3,6 +3,9 @@ from flask_cors import CORS
 from twilio.rest import Client
 from flask_socketio import SocketIO, send
 from decouple import config
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 CORS(app)
@@ -27,23 +30,25 @@ def call():
         url='http://demo.twilio.com/docs/voice.xml',
         to=phone,
         from_='+15033799742',
-        status_callback='http://127.0.0.1:5000',
+        status_callback='https://enxebojwaijm.x.pipedream.net',
         status_callback_event=['initiated', 'answered', 'ringing', 'completed'],
         status_callback_method='POST'
     )
-    print(call.sid)
+    print(call.sid, call.status)
     return {"content": phone, "status": call.status } 
 
-@socketio.on('status')
+@socketio.on('CallStatus')
 def status_change(status):
     print(status)
     send(status, broadcast=True)
     return None
 
-@app.route('/response', methods=['POST'])
+@app.route("/callStatus", methods=['POST'])
 def outbound():
-    status=request.values.get('CallStatus', None)
-    return {"status" : status}   
+    call_status = request.values.get('CallStatus', None)
+    logging.info('Status: {}'.format(call_status))
+    # print(call_status)
+    return ('', 204)   
 
 if __name__ == "__main__":
     socketio.run(app)
