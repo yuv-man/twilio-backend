@@ -18,6 +18,10 @@ auth_token = config('TWILIO_AUTH_TOKEN')
 client = Client(account_sid, auth_token)
 app.config['SECRET_KEY'] = 'secretkey'
 
+@app.route('/', methods=['GET'])
+def index():
+    return 'Hello'
+
 @app.route('/api', methods=['GET'])
 def index():
     return {"status" : "Welcome welcome"}
